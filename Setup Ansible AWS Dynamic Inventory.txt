@@ -57,3 +57,5 @@ If you have some instances up and running, you will get the output with all the 
  # ansible all -m ping
 
 
+
+REFF: https://pynet.twb-tech.com/blog/ansible/dynamic-inventory.html
