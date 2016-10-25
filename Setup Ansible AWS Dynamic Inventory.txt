@@ -1,0 +1,59 @@
+How To Setup Ansible AWS Dynamic Inventory
+
+When you are using Ansible with AWS, its very hard to maintain the inventory file as AWS has frequently changing IP’s, autoscaling instances and much more. 
+However, there is an easy solution called ansible dynamic inventory. It is basically a python script which makes an API call to get the instance information when you run the ansible commands. 
+This will give you dynamic inventory details to manage the AWS infrastructure.
+
+Steps to setup AWS Dynamic Inventory.
+
+---> Dynamci inventory for AWS using boto and python script. 
+
+1. Install the boto library using pip.
+  # pip install boto
+
+2. Download the Inventory Script to /etc/ansible directory.
+  # wget https://raw.github.com/ansible/ansible/devel/contrib/inventory/ec2.py
+
+3. Make the file executable.
+ # chmod +x ec2.py
+
+4. Download the ec2.ini file to /etc/ansible directory.
+  # https://raw.githubusercontent.com/ansible/ansible/devel/contrib/inventory/ec2.ini
+
+5. ec2.ini file has the default AWS configurations which are read by ec2.py file. Comment-out & configure the necessary parameter to avoid long query times, such as “regions” parameter. 
+   By default, the value is “all”, this makes API calls to all the regions, better to mention only the specific aws region that we use.
+
+Under the [credentials] section you need to mention the aws access key and private key to for the boto library to make the API call.
+
+Alternatively, you can create a credentials file in your home as shown below.
+
+touch ~/.aws/credentials
+Open the credentials file and make the entries as shown below.
+
+[default]
+aws_access_key_id = YOUR_ACCESS_KEY
+aws_secret_access_key = YOUR_SECRET_KEY
+
+6. Now test the inventory configure using the following command.
+   # ./ec2.py --list
+
+   The output should be as below.
+
+{
+  "_meta": {
+    "hostvars": {}
+  }
+}
+
+If you have some instances up and running, you will get the output with all the instance details.
+
+7. If you want to use the dynamic inventory as a default ansible inventory, you need to edit the ansible.cfg file present in /etc/ansible directory and search for inventory parameter in the ansible.cfg. 
+   Change the inventory parameter value as shown below.
+   
+ # inventory      = /etc/ansible/ec2.py
+
+ Now you can run the normal ansible commands against the dynamic inventory. For example, the following command will run a ping command against all the running ec2 instances fetched using the dynamic inventory.
+
+ # ansible all -m ping
+
+
